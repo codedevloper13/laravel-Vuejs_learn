@@ -1959,6 +1959,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
     source: String
@@ -1966,6 +1978,8 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       drawer: null,
+      snackbar: false,
+      text: "Well Come To DashBoard",
       items: [{
         icon: 'mdi-trending-up',
         text: 'Most Popular'
@@ -2002,6 +2016,18 @@ __webpack_require__.r(__webpack_exports__);
   },
   created: function created() {
     this.$vuetify.theme.dark = true;
+  },
+  mounted: function mounted() {
+    this.snackbar = localStorage.getItem('Loggedin') ? true : false;
+    localStorage.removeItem('Loggedin');
+  },
+  methods: {
+    logout: function logout() {
+      localStorage.removeItem('token');
+      this.$router.push('/login').then(console.log("Logged Out Successfully"))["catch"](function (err) {
+        return console.log(err);
+      });
+    }
   }
 });
 
@@ -2064,7 +2090,82 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-/* harmony default export */ __webpack_exports__["default"] = ({});
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      valid: true,
+      email: '',
+      emailRules: [function (v) {
+        return !!v || 'E-mail is required';
+      }, function (v) {
+        return /.+@.+\..+/.test(v) || 'E-mail must be valid';
+      }],
+      password: '',
+      passwordRules: [function (v) {
+        return !!v || 'Password is required';
+      }],
+      loading: false,
+      snackbar: false,
+      text: ''
+    };
+  },
+  methods: {
+    login: function login() {
+      var _this = this;
+
+      // Add a request interceptor
+      axios.interceptors.request.use(function (config) {
+        _this.loading = true;
+        return config;
+      }, function (error) {
+        _this.loading = false;
+        return Promise.reject(error);
+      }); // Add a response interceptor
+
+      axios.interceptors.response.use(function (response) {
+        _this.loading = false;
+        return response;
+      }, function (error) {
+        _this.loading = false;
+        return Promise.reject(error);
+      });
+      axios.post('/api/login', {
+        'email': this.email,
+        'password': this.password
+      }).then(function (res) {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('Loggedin', true);
+
+        _this.$router.push('/admin').then(console.log("LoggedIn"))["catch"](function (err) {
+          return console.log(err);
+        });
+      })["catch"](function (err) {
+        _this.text = err.response.data.status;
+        _this.snackbar = true;
+      });
+    }
+  }
+});
 
 /***/ }),
 
@@ -19769,7 +19870,7 @@ var render = function() {
               _vm._v(" "),
               _c(
                 "v-list-item",
-                { attrs: { link: "" } },
+                { on: { click: _vm.logout } },
                 [
                   _c(
                     "v-list-item-action",
@@ -19784,7 +19885,7 @@ var render = function() {
                   _c(
                     "v-list-item-title",
                     { staticClass: "grey--text text--darken-1" },
-                    [_vm._v("Manage Subscriptions")]
+                    [_vm._v("Log Out")]
                   )
                 ],
                 1
@@ -19809,10 +19910,10 @@ var render = function() {
             }
           }),
           _vm._v(" "),
-          _c("v-icon", { staticClass: "mx-4" }, [_vm._v("fab fa-youtube")]),
+          _c("v-icon", { staticClass: "mx-4" }, [_vm._v("mdi-logout")]),
           _vm._v(" "),
           _c("v-toolbar-title", { staticClass: "mr-12 align-center" }, [
-            _c("span", { staticClass: "title" }, [_vm._v("Youtube")])
+            _c("span", { staticClass: "title" }, [_vm._v("Vue Js Dashboard")])
           ]),
           _vm._v(" "),
           _c("v-spacer"),
@@ -19854,7 +19955,44 @@ var render = function() {
                 [
                   _c("v-col", { staticClass: "shrink" }, [
                     _c("h2", [_vm._v("hello")])
-                  ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "v-snackbar",
+                    {
+                      model: {
+                        value: _vm.snackbar,
+                        callback: function($$v) {
+                          _vm.snackbar = $$v
+                        },
+                        expression: "snackbar"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                    " +
+                          _vm._s(_vm.text) +
+                          "\n                    "
+                      ),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "pink", text: "" },
+                          on: {
+                            click: function($event) {
+                              _vm.snackbar = false
+                            }
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Close\n                    "
+                          )
+                        ]
+                      )
+                    ],
+                    1
+                  )
                 ],
                 1
               )
@@ -19939,7 +20077,7 @@ var render = function() {
                         [
                           _c(
                             "v-toolbar",
-                            { attrs: { color: "warning", dark: "", flat: "" } },
+                            { attrs: { color: "error", dark: "", flat: "" } },
                             [
                               _c("v-toolbar-title", [_vm._v("Login form")]),
                               _vm._v(" "),
@@ -19951,15 +20089,44 @@ var render = function() {
                           _c(
                             "v-card-text",
                             [
+                              _c("v-progress-linear", {
+                                attrs: {
+                                  active: _vm.loading,
+                                  indeterminate: _vm.loading,
+                                  absolute: "",
+                                  top: "",
+                                  color: "deep-purple accent-4"
+                                }
+                              }),
+                              _vm._v(" "),
                               _c(
                                 "v-form",
+                                {
+                                  ref: "form",
+                                  model: {
+                                    value: _vm.valid,
+                                    callback: function($$v) {
+                                      _vm.valid = $$v
+                                    },
+                                    expression: "valid"
+                                  }
+                                },
                                 [
                                   _c("v-text-field", {
                                     attrs: {
                                       label: "Login",
-                                      name: "login",
+                                      name: "email",
                                       "prepend-icon": "mdi-account",
-                                      type: "text"
+                                      type: "email",
+                                      required: "",
+                                      rules: _vm.emailRules
+                                    },
+                                    model: {
+                                      value: _vm.email,
+                                      callback: function($$v) {
+                                        _vm.email = $$v
+                                      },
+                                      expression: "email"
                                     }
                                   }),
                                   _vm._v(" "),
@@ -19967,9 +20134,18 @@ var render = function() {
                                     attrs: {
                                       id: "password",
                                       label: "Password",
+                                      rules: _vm.passwordRules,
                                       name: "password",
                                       "prepend-icon": "mdi-lock",
-                                      type: "password"
+                                      type: "password",
+                                      required: ""
+                                    },
+                                    model: {
+                                      value: _vm.password,
+                                      callback: function($$v) {
+                                        _vm.password = $$v
+                                      },
+                                      expression: "password"
                                     }
                                   })
                                 ],
@@ -19984,11 +20160,57 @@ var render = function() {
                             [
                               _c("v-spacer"),
                               _vm._v(" "),
-                              _c("v-btn", { attrs: { color: "primary" } }, [
-                                _vm._v("Login")
-                              ])
+                              _c(
+                                "v-btn",
+                                {
+                                  staticStyle: { width: "100%" },
+                                  attrs: {
+                                    disabled: !_vm.valid,
+                                    color: "error"
+                                  },
+                                  on: { click: _vm.login }
+                                },
+                                [_vm._v("Login")]
+                              )
                             ],
                             1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-snackbar",
+                        {
+                          model: {
+                            value: _vm.snackbar,
+                            callback: function($$v) {
+                              _vm.snackbar = $$v
+                            },
+                            expression: "snackbar"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                        " +
+                              _vm._s(_vm.text) +
+                              "\n                        "
+                          ),
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "pink", text: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.snackbar = false
+                                }
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n                            Close\n                        "
+                              )
+                            ]
                           )
                         ],
                         1
@@ -76509,7 +76731,14 @@ var routes = [{
 {
   path: '/admin',
   component: _components_AdminComponent__WEBPACK_IMPORTED_MODULE_3__["default"],
-  name: 'Admin'
+  name: 'Admin',
+  beforeEnter: function beforeEnter(to, from, next) {
+    if (localStorage.getItem('token')) {
+      next();
+    } else {
+      next('/login');
+    }
+  }
 }];
 /* harmony default export */ __webpack_exports__["default"] = (new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   routes: routes

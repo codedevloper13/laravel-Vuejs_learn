@@ -22,20 +22,20 @@
                     </v-list-item-action>
                     <v-list-item-title class="grey--text text--darken-1">Browse Channels</v-list-item-title>
                 </v-list-item>
-                <v-list-item link>
+                <v-list-item @click="logout">
                     <v-list-item-action>
                         <v-icon color="grey darken-1">mdi-settings</v-icon>
                     </v-list-item-action>
-                    <v-list-item-title class="grey--text text--darken-1">Manage Subscriptions</v-list-item-title>
+                    <v-list-item-title class="grey--text text--darken-1">Log Out</v-list-item-title>
                 </v-list-item>
             </v-list>
         </v-navigation-drawer>
         <v-app-bar app clipped-left color="red" dense>
             <v-app-bar-nav-icon @click.stop="drawer=!drawer" />
-            <v-icon class="mx-4">fab fa-youtube</v-icon>
-            <v-toolbar-title class="mr-12 align-center"> <span class="title">Youtube</span> </v-toolbar-title>
+            <v-icon class="mx-4">mdi-logout</v-icon>
+            <v-toolbar-title class="mr-12 align-center"> <span class="title">Vue Js Dashboard</span> </v-toolbar-title>
             <v-spacer/>
-            <v-row align="center" style="max-width: 650px">
+            <v-row align="center" style="max-width:650px">
                 <v-text-field :append-icon-cb="()=>{}" placeholder="Search..." single-line append-icon="mdi-magnify" color="white" hide-details/> </v-row>
         </v-app-bar>
         <v-content>
@@ -44,6 +44,18 @@
                     <v-col class="shrink">
                         <h2>hello</h2>
                     </v-col>
+                    <v-snackbar
+                        v-model="snackbar"
+                    >
+                        {{ text }}
+                        <v-btn
+                            color="pink"
+                            text
+                            @click="snackbar = false"
+                        >
+                            Close
+                        </v-btn>
+                    </v-snackbar>
                 </v-row>
             </v-container>
         </v-content>
@@ -53,9 +65,12 @@
     export default {
         props: {
             source: String,
+
         },
         data: () => ({
             drawer: null,
+            snackbar:false,
+            text:"Well Come To DashBoard",
             items: [{
                 icon: 'mdi-trending-up',
                 text: 'Most Popular'
@@ -90,7 +105,19 @@
             }, ],
         }),
         created() {
-            this.$vuetify.theme.dark = true
+            this.$vuetify.theme.dark = true;
+
         },
+        mounted() {
+            this.snackbar=localStorage.getItem('Loggedin') ? true : false;
+            localStorage.removeItem('Loggedin')
+        },
+
+        methods:{
+            logout:function(){
+                localStorage.removeItem('token');
+                this.$router.push('/login').then(console.log("Logged Out Successfully")).catch(err => console.log(err))
+            }
+        }
     }
 </script>
