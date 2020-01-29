@@ -28,16 +28,9 @@
                             </v-card-actions>
                         </v-card>
                         <v-snackbar
-                            v-model="snackbar"
-                        >
+                            v-model="snackbar">
                             {{ text }}
-                            <v-btn
-                                color="pink"
-                                text
-                                @click="snackbar = false"
-                            >
-                                Close
-                            </v-btn>
+                            <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
                         </v-snackbar>
                     </v-col>
                 </v-row>

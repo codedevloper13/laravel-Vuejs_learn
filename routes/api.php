@@ -19,3 +19,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
  Route::post('login','Api\UserController@login')->name('login');
+
+ Route::group(['middleware'=>['auth:api'],'namespace'=>'Api'],function (){
+     Route::resource('roles','RoleController');
+
+ });
+

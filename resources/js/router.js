@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import LoginComponent from './components/LoginComponent';
 import AdminComponent from './components/AdminComponent';
+import RolesComponent from './components/RolesComponent';
 
 Vue.use(VueRouter);
 const routes = [{
@@ -18,17 +19,31 @@ const routes = [{
         path: '/admin',
         component: AdminComponent,
         name: 'Admin',
-        beforeEnter: (to, from, next) => {
-            if (localStorage.getItem('token')) {
-                next();
-            } else {
-                next('/login');
-            }
-        }
+        // children property use likes other Routes
+            children:[
+                {
+                path: 'roles',
+                component: RolesComponent,
+                name: 'Roles',
+            },
+            ],
+        //For Checking the Token if exits then Going to dashboard or else going to Login Page....
+        // beforeEnter: (to, from, next) => {
+        //     if (localStorage.getItem('token')) {
+        //         next();
+        //     } else {
+        //         next('/login');
+        //     }
+        // }
     },
 
 
-];
-export default new VueRouter({
-    routes
-});
+]
+const router = new VueRouter({routes})
+    router.beforeEach((to, from, next) => {
+        // Either check the Token or if Not Found  send to null Value..
+        const token = localStorage.getItem('token') || null
+        window.axios.defaults.headers['Authorization'] = "Bearer " + token;
+        next();
+    })
+export default router
