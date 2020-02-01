@@ -2342,9 +2342,10 @@ __webpack_require__.r(__webpack_exports__);
         _this.loading = false;
         return Promise.reject(error);
       });
-      axios.get('/api/roles', {}); // .then(res=>console.log(res.data.roles))
-      // .then(res => this.roles = res.data.roles)
-      // .catch(err =>{
+      axios.get('/api/roles', {}) // .then(res=>console.log(res.data.roles))
+      .then(function (res) {
+        return _this.roles = res.data.roles;
+      }); // .catch(err =>{
       //     if (err.response.status == 401)
       //         localStorage.removeItem('token');
       //      this.$router.push('/login');
@@ -77007,7 +77008,9 @@ window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
  */
 
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'; // const jwtToken = `Bearer ${localStorage.getItem('token')}`;
+// window.axios.defaults.headers.common['authorization'] = jwtToken;
+
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
@@ -77338,21 +77341,20 @@ var routes = [{
     path: 'roles',
     component: _components_RolesComponent__WEBPACK_IMPORTED_MODULE_4__["default"],
     name: 'Roles'
-  }] //For Checking the Token if exits then Going to dashboard or else going to Login Page....
-  // beforeEnter: (to, from, next) => {
-  //     if (localStorage.getItem('token')) {
-  //         next();
-  //     } else {
-  //         next('/login');
-  //     }
-  // }
-
+  }],
+  //For Checking the Token if exits then Going to dashboard or else going to Login Page....
+  beforeEnter: function beforeEnter(to, from, next) {
+    axios.get('api/verify').then(function (res) {
+      return next();
+    })["catch"](function (err) {
+      return next('/login');
+    });
+  }
 }];
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   routes: routes
 });
 router.beforeEach(function (to, from, next) {
-  // Either check the Token or if Not Found  send to null Value..
   var token = localStorage.getItem('token') || null;
   window.axios.defaults.headers['Authorization'] = "Bearer " + token;
   next();

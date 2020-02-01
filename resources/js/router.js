@@ -4,7 +4,8 @@ import LoginComponent from './components/LoginComponent';
 import AdminComponent from './components/AdminComponent';
 import RolesComponent from './components/RolesComponent';
 
-Vue.use(VueRouter);
+
+Vue.use(VueRouter)
 const routes = [{
     path: '/',
     redirect: '/login'
@@ -28,22 +29,22 @@ const routes = [{
             },
             ],
         //For Checking the Token if exits then Going to dashboard or else going to Login Page....
-        // beforeEnter: (to, from, next) => {
-        //     if (localStorage.getItem('token')) {
-        //         next();
-        //     } else {
-        //         next('/login');
-        //     }
-        // }
-    },
+        beforeEnter: (to, from, next) => {
+            axios.get('api/verify')
+                .then(res => next())
+                .catch(err => next('/login'))
+
+        }
+    }
 
 
 ]
+
 const router = new VueRouter({routes})
-    router.beforeEach((to, from, next) => {
-        // Either check the Token or if Not Found  send to null Value..
-        const token = localStorage.getItem('token') || null
-        window.axios.defaults.headers['Authorization'] = "Bearer " + token;
-        next();
-    })
-export default router
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('token') || null
+    window.axios.defaults.headers['Authorization'] = "Bearer "+ token;
+    next();
+});
+
+export default router;
